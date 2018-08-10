@@ -1,0 +1,68 @@
+1.下载mongodb tar
+https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-4.0.0.tgz
+https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.6.tgz
+2.解压tar
+mkdir -p /data/program/mongodb
+cd /data/program/mongodb
+mkdir data
+mkdir logs
+yum install -y axel
+axel -n 10 https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.6.tgz
+tar -zxvf mongodb-linux-x86_64-3.4.6.tgz
+
+3.在mongodb/bin下创建配置文件并配置
+cd /data/program/mongodb/mongodb-linux-x86_64-3.4.6/bin
+vi mongodb.conf
+添加配置项
+dbpath = /data/program/mongodb/data/
+logpath = /data/program/mongodb/logs/mongodb.log
+port = 27017
+fork = true
+nohttpinterface = true
+auth=false
+bind_ip=0.0.0.0
+
+4.环境变量配置
+vi /etc/profile 
+export MONGODB_HOME=/data/program/mongodb/mongodb-linux-x86_64-3.4.6
+export PATH=$PATH:$MONGODB_HOME/bin
+source /etc/profile
+
+5.启动
+cd /data/program/mongodb/mongodb-linux-x86_64-3.4.6/bin
+mongod -f mongodb.conf
+
+6.关闭
+cd /data/program/mongodb/mongodb-linux-x86_64-3.4.6/bin
+mongod -f ./mongodb.conf --shutdown
+
+7.开启外部访问
+firewall-cmd --zone=public --add-port=27017/tcp --permanent
+查看端口
+firewall-cmd --permanent --query-port=27017/tcp
+重启防火墙
+firewall-cmd --reload
+
+8.创建管理员密码
+use admin
+db.createUser({user:"",pwd:"",roles:["root"]})
+db.auth('','')
+db.grantRolesToUser( "" , [ { role: "dbOwner", db: "nodebb" } ]) ;
+db.createUser({user:"root",pwd:"",roles:["root"]})
+
+9.创建其他用户
+use test
+db.createUser({user:"test",pwd:"test",roles:[{role:"readWrite",db:"test"}]})
+use nodebb
+db.createUser({user:"nodebb",pwd:"nodebb",roles:[{role:"readWrite",db:"nodebb"}]})
+db.auth('nodebb','nodebb')
+db.grantRolesToUser( "nodebb" , [ { role: "dbOwner", db: "nodebb" } ]) ;
+
+10.启动授权验证
+cd /data/program/mongodb/mongodb-linux-x86_64-3.4.6/bin
+vi mongodb.conf
+security:
+  authorization: enabled
+auth=true
+
+firewall-cmd --zone=public --add-port=8988/tcp --permanent

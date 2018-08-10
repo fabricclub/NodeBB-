@@ -1,0 +1,98 @@
+CentOS7安装
+1.更新环境
+yum -y update 
+2.安装epel发行版
+yum -y install epel-release 
+3.安装开发工具集
+yum clean all
+yum groupinfo Development Tools
+yum -y groupinstall "Development Tools"
+如果上面无法安装就安装下边命令显示的所有软件
+yum group info "Development Tools"
+4.安装必要插件
+yum -y install git ImageMagick 
+5.安装nodejs
+yum -y install nodejs
+6.1安装启动mongodb(推荐用monodb,存储配置完后无法切换)
+建议用mongodb做存储
+6.2安装启动redis
+yum -y install redis
+service redis start  
+systemctrl enable redis
+7.安装nodebb
+mkdir -p /data/program/nodebb/
+cd /data/program/nodebb/
+rm -rf *
+git clone -b v1.8.x https://github.com/NodeBB/NodeBB.git nodebb
+通过代理下载
+git clone -b v1.8.x https://github.com/NodeBB/NodeBB nodebb --config "http.proxy=172.16.30.34:808"
+cd nodebb
+./nodebb setup 
+如果上面过程卡住,执行下边语句
+npm config set registry http://registry.cnpmjs.org
+npm install
+url:http://localhost:4567
+mongodb://nodebb:bytos@localhost:27017/nodebb
+yinzhong/!qaz2WSX
+./nodebb start 
+8.修改访问链接启动nodebb
+
+An administrative user was automatically created for you:
+    Username: admin
+    Password: 
+
+
+git clone https://github.com/Chyroc/WechatSogou.git --config "http.proxy=172.16.30.118:808"
+
+
+-------------------------------------------------------------------------------------------------
+CentOS6安装
+NodeBB安装
+rpm -ivh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+1.安装npm
+yum install -y nodejs npm
+2.安装redis
+yum install redis
+3.安装MongoDB
+vi /etc/yum.repos.d/mongodb-org-3.4.repo
+
+[mongodb-org-3.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
+
+yum install -y mongodb-org
+sudo service mongod start
+mkdir -p /data/mongodb/mongodb_log/
+mkdir -p /data/mongodb/mongodb_data/
+touch /data/mongodb/mongodb_log/mongodb.log
+cd /data/program/mongodb/mongodb-linux-x86_64-3.6.6/bin/
+./mongod --port 27017 --dbpath=/data/program/mongodb/data/ --logpath=/data/mongodb/logs/mongodb.log --logappend
+./mongod --shutdown
+./mongo 192.168.190.128
+192.168.190.128
+4.安装Mongo数据库
+use nodebb;
+db.createUser( { user: "nodebbroot", pwd: "1qaz2WSX", roles: [ "readWrite" ] } )
+修改权限
+vi /etc/mongodb.conf
+authorization改为enabled
+
+5.安装依赖库
+yum install ImageMagick ImageMagick-devel
+6.安装NodeBB
+git clone git://github.com/designcreateplay/NodeBB.git nodebb
+启动
+./nodebb setup
+./nodebb start
+
+
+
+
+firewall-cmd --zone=public --add-port=4567/tcp --permanent
+查看端口
+firewall-cmd --permanent --query-port=4567/tcp
+重启防火墙
+firewall-cmd --reload
